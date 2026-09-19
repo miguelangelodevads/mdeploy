@@ -341,37 +341,41 @@
     }
     erro.textContent = "";
 
-    // Endpoint do Formspree. Enquanto for o placeholder, o formulário
-    // desvia a mensagem para o WhatsApp preenchido automaticamente.
+    // Roteamento pelo campo "E-mail ou telefone":
+    // e-mail -> mensagem vai para o e-mail do Mdeploy
+    // número -> mensagem vai para o WhatsApp do Mdeploy
+    const ehEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contato);
+
+    // Endpoint do Formspree (usado quando o contato é e-mail).
     const endpoint = form.action;
     const formspreeConfigurado = !endpoint.includes("SEU_ENDPOINT");
 
-    if (!formspreeConfigurado) {
-      enviarPorWhatsApp(nome, contato, mensagem);
+    if (ehEmail) {
+      if (formspreeConfigurado) {
+        try {
+          const resp = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Accept": "application/json" },
+            body: new FormData(form)
+          });
+          if (!resp.ok) throw new Error("falha no envio");
+        } catch {
+          abrirEmail(nome, contato, mensagem);
+        }
+      } else {
+        abrirEmail(nome, contato, mensagem);
+      }
+      ok.textContent = "Recebido! Abrimos seu e-mail com a mensagem pronta — é só enviar.";
       ok.hidden = false;
       form.reset();
       return;
     }
 
-    try {
-      const resp = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Accept": "application/json" },
-        body: new FormData(form)
-      });
-      if (resp.ok) {
-        ok.hidden = false;
-        form.reset();
-      } else {
-        enviarPorWhatsApp(nome, contato, mensagem);
-        ok.hidden = false;
-        form.reset();
-      }
-    } catch {
-      enviarPorWhatsApp(nome, contato, mensagem);
-      ok.hidden = false;
-      form.reset();
-    }
+    // Contato é número: WhatsApp
+    enviarPorWhatsApp(nome, contato, mensagem);
+    ok.textContent = "Recebido! Abrimos o WhatsApp com sua mensagem — é só enviar.";
+    ok.hidden = false;
+    form.reset();
   });
 
   // Abre o WhatsApp com a mensagem do formulário já preenchida
@@ -380,6 +384,15 @@
       `Olá! Meu nome é ${nome}.\nContato: ${contato}\n\n${mensagem}`
     );
     window.open(`https://wa.me/5585987110571?text=${texto}`, "_blank", "noopener");
+  }
+
+  // Abre o cliente de e-mail do visitante com a mensagem pronta para mdeploy@outlook.com.br
+  function abrirEmail(nome, contato, mensagem) {
+    const assunto = encodeURIComponent(`Contato pelo site — ${nome}`);
+    const corpo = encodeURIComponent(
+      `Nome: ${nome}\nContato: ${contato}\n\n${mensagem}`
+    );
+    window.location.href = `mailto:mdeploy@outlook.com.br?subject=${assunto}&body=${corpo}`;
   }
 </script>
 
