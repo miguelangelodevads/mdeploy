@@ -272,15 +272,16 @@
       <h2 class="fade">Vamos conversar</h2>
       <p class="fade">Conte o que você precisa e eu respondo com uma proposta.</p>
 
-      <!-- TODO: crie um formulário grátis em https://formspree.io e cole o endpoint no action -->
-      <form id="contact-form" class="fade" action="https://formspree.io/f/SEU_ENDPOINT" method="POST" novalidate>
+      <!-- Envio automático via FormSubmit: na primeira mensagem, chega um e-mail
+           de confirmação em mdeploy@outlook.com.br — confirme uma vez e pronto. -->
+      <form id="contact-form" class="fade" action="https://formsubmit.co/ajax/mdeploy@outlook.com.br" method="POST" novalidate>
         <div class="field">
           <label for="nome">Nome</label>
           <input id="nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required>
         </div>
         <div class="field">
-          <label for="contato">E-mail ou telefone</label>
-          <input id="contato" name="contato" type="text" placeholder="voce@email.com ou (11) 99999-9999" inputmode="text" autocomplete="email" required>
+          <label for="contato">Seu e-mail</label>
+          <input id="contato" name="email" type="email" placeholder="voce@email.com" inputmode="email" autocomplete="email" required>
         </div>
         <div class="field">
           <label for="mensagem">Mensagem</label>
@@ -288,7 +289,7 @@
         </div>
         <p class="form-error" id="form-error" aria-live="polite"></p>
         <button class="btn" type="submit">Enviar mensagem</button>
-        <p class="form-ok" id="form-ok" aria-live="polite" hidden>Recebido! Abrimos o WhatsApp com sua mensagem — é só enviar.</p>
+        <p class="form-ok" id="form-ok" aria-live="polite" hidden>Enviamos sua mensagem! Em breve entraremos em contato pelo e-mail cadastrado.</p>
       </form>
     </div>
   </section>
@@ -341,59 +342,27 @@
     }
     erro.textContent = "";
 
-    // Roteamento pelo campo "E-mail ou telefone":
-    // e-mail -> mensagem vai para o e-mail do Mdeploy
-    // número -> mensagem vai para o WhatsApp do Mdeploy
+    // Valida que o contato é um e-mail
     const ehEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contato);
-
-    // Endpoint do Formspree (usado quando o contato é e-mail).
-    const endpoint = form.action;
-    const formspreeConfigurado = !endpoint.includes("SEU_ENDPOINT");
-
-    if (ehEmail) {
-      if (formspreeConfigurado) {
-        try {
-          const resp = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Accept": "application/json" },
-            body: new FormData(form)
-          });
-          if (!resp.ok) throw new Error("falha no envio");
-        } catch {
-          abrirEmail(nome, contato, mensagem);
-        }
-      } else {
-        abrirEmail(nome, contato, mensagem);
-      }
-      ok.textContent = "Recebido! Abrimos seu e-mail com a mensagem pronta — é só enviar.";
-      ok.hidden = false;
-      form.reset();
+    if (!ehEmail) {
+      erro.textContent = "Digite um e-mail válido.";
       return;
     }
 
-    // Contato é número: WhatsApp
-    enviarPorWhatsApp(nome, contato, mensagem);
-    ok.textContent = "Recebido! Abrimos o WhatsApp com sua mensagem — é só enviar.";
-    ok.hidden = false;
-    form.reset();
+    // Envia automaticamente para mdeploy@outlook.com.br via FormSubmit
+    try {
+      const resp = await fetch(form.action, {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email: contato, mensagem, _subject: `Contato pelo site — ${nome}` })
+      });
+      if (!resp.ok) throw new Error("falha no envio");
+      ok.hidden = false;
+      form.reset();
+    } catch {
+      erro.textContent = "Não foi possível enviar agora. Tente novamente ou fale pelo WhatsApp.";
+    }
   });
-
-  // Abre o WhatsApp com a mensagem do formulário já preenchida
-  function enviarPorWhatsApp(nome, contato, mensagem) {
-    const texto = encodeURIComponent(
-      `Olá! Meu nome é ${nome}.\nContato: ${contato}\n\n${mensagem}`
-    );
-    window.open(`https://wa.me/5585987110571?text=${texto}`, "_blank", "noopener");
-  }
-
-  // Abre o cliente de e-mail do visitante com a mensagem pronta para mdeploy@outlook.com.br
-  function abrirEmail(nome, contato, mensagem) {
-    const assunto = encodeURIComponent(`Contato pelo site — ${nome}`);
-    const corpo = encodeURIComponent(
-      `Nome: ${nome}\nContato: ${contato}\n\n${mensagem}`
-    );
-    window.location.href = `mailto:mdeploy@outlook.com.br?subject=${assunto}&body=${corpo}`;
-  }
 </script>
 
 </body>
