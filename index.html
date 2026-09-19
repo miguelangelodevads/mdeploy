@@ -288,7 +288,7 @@
         </div>
         <p class="form-error" id="form-error" aria-live="polite"></p>
         <button class="btn" type="submit">Enviar mensagem</button>
-        <p class="form-ok" id="form-ok" aria-live="polite" hidden>Mensagem enviada! Vou responder em breve.</p>
+        <p class="form-ok" id="form-ok" aria-live="polite" hidden>Recebido! Abrimos o WhatsApp com sua mensagem — é só enviar.</p>
       </form>
     </div>
   </section>
@@ -341,9 +341,20 @@
     }
     erro.textContent = "";
 
-    // Envia ao Formspree. Se o endpoint ainda não foi configurado, mostra erro na tela.
+    // Endpoint do Formspree. Enquanto for o placeholder, o formulário
+    // desvia a mensagem para o WhatsApp preenchido automaticamente.
+    const endpoint = form.action;
+    const formspreeConfigurado = !endpoint.includes("SEU_ENDPOINT");
+
+    if (!formspreeConfigurado) {
+      enviarPorWhatsApp(nome, contato, mensagem);
+      ok.hidden = false;
+      form.reset();
+      return;
+    }
+
     try {
-      const resp = await fetch(form.action, {
+      const resp = await fetch(endpoint, {
         method: "POST",
         headers: { "Accept": "application/json" },
         body: new FormData(form)
@@ -352,12 +363,24 @@
         ok.hidden = false;
         form.reset();
       } else {
-        erro.textContent = "Não foi possível enviar agora. Tente pelo WhatsApp.";
+        enviarPorWhatsApp(nome, contato, mensagem);
+        ok.hidden = false;
+        form.reset();
       }
     } catch {
-      erro.textContent = "Sem conexão. Tente novamente ou fale pelo WhatsApp.";
+      enviarPorWhatsApp(nome, contato, mensagem);
+      ok.hidden = false;
+      form.reset();
     }
   });
+
+  // Abre o WhatsApp com a mensagem do formulário já preenchida
+  function enviarPorWhatsApp(nome, contato, mensagem) {
+    const texto = encodeURIComponent(
+      `Olá! Meu nome é ${nome}.\nContato: ${contato}\n\n${mensagem}`
+    );
+    window.open(`https://wa.me/5585987110571?text=${texto}`, "_blank", "noopener");
+  }
 </script>
 
 </body>
