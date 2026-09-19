@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mdeploy — Sites e sistemas sob medida</title>
+<meta name="description" content="Criação de sites, landing pages e sistemas web sob medida para o seu negócio. Fale conosco e tire seu projeto do papel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<style>
+  :root {
+    --bg: #ffffff;
+    --surface: rgba(255, 255, 255, 0.55);
+    --surface-hover: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.65);
+    --glass-shadow: 0 8px 32px rgba(17, 17, 17, 0.08);
+    --text: #111111;
+    --text-weak: #555555;
+    --border: rgba(17, 17, 17, 0.1);
+    --accent: #f5c400;
+    --accent-strong: #e0b300;
+    --accent-text: #111111;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 1rem;        /* 16px corpo */
+    line-height: 1.6;
+  }
+
+  /* Manchas de cor no fundo — dão profundidade para o efeito vidro aparecer */
+  .bg-glow {
+    position: fixed; inset: 0; z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(30rem 30rem at 50% 85%, rgba(17, 17, 17, 0.006), transparent 70%);
+  }
+
+  h1 { font-size: clamp(1.9rem, 5vw, 3rem); font-weight: 800; line-height: 1.15; }
+  h2 { font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; }
+  .small, footer, .hero-sub { font-size: 0.95rem; }
+
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 1.25rem; }
+
+  /* Header */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255, 255, 255, 0.65);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--glass-border);
+    transition: background 0.35s ease, border-color 0.35s ease;
+  }
+  /* Ao rolar, o vidro fica mais embaçado e levemente mais claro — sem escurecer */
+  header.rolando {
+    background: rgba(255, 255, 255, 0.35);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+    backdrop-filter: blur(22px) saturate(1.4);
+    border-bottom-color: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 4px 24px rgba(17, 17, 17, 0.06);
+  }
+  .header-inner {
+    display: flex; flex-wrap: wrap; align-items: center;
+    justify-content: space-between; gap: 0.5rem;
+    padding: 0.9rem 0;
+  }
+  .logo { font-weight: 800; font-size: 1.15rem; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 0.55rem; }
+  .logo span { color: var(--accent-strong); }
+  .logo-mark { height: 3.2rem; width: auto; flex-shrink: 0; }
+
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600; font-size: 1rem;
+    padding: 0.7rem 1.4rem;
+    border: none; border-radius: var(--radius);
+    text-decoration: none; cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .btn:hover { background: var(--accent-strong); }
+  .btn:active { transform: scale(0.97); }
+  .btn-outline {
+    background: rgba(255, 255, 255, 0.4);
+    color: var(--accent-strong);
+    border: 1px solid var(--accent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  .btn-outline:hover { background: var(--surface-hover); }
+
+  /* Hero */
+  .hero { padding: 4.5rem 0 3.5rem; }
+  .hero-sub { color: var(--text-weak); max-width: 34rem; margin: 1rem 0 2rem; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+
+  /* Serviços */
+  .services { padding: 3.5rem 0; }
+  .services h2 { margin-bottom: 1.75rem; }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+  .card {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--glass-shadow);
+  }
+  .card:hover { background: var(--surface-hover); }
+  .card { transition: background 0.2s, transform 0.2s, opacity 0.7s ease-out; }
+  .card:hover { transform: translateY(-3px); }
+
+  /* Desvanecimento ao rolar */
+  .fade {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .fade.visivel {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fade, .fade.visivel { opacity: 1; transform: none; transition: none; }
+  }
+  .card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .card p { color: var(--text-weak); font-size: 0.95rem; }
+
+  /* Contato */
+  .contact { padding: 3.5rem 0 4.5rem; }
+  .contact h2 { margin-bottom: 0.5rem; }
+  .contact > .wrap > p { color: var(--text-weak); margin-bottom: 1.75rem; }
+  form { max-width: 34rem; }
+  .field { margin-bottom: 1rem; }
+  label { display: block; font-weight: 600; margin-bottom: 0.35rem; }
+  input, textarea {
+    width: 100%;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid rgba(224, 179, 0, 0.45);
+    border-radius: var(--radius);
+    padding: 0.7rem 0.9rem;
+    font: inherit;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:hover, textarea:hover { border-color: rgba(224, 179, 0, 0.7); }
+  input:focus, textarea:focus {
+    border-color: var(--accent-strong);
+    box-shadow: 0 0 0 3px rgba(245, 196, 0, 0.2);
+    outline: none;
+  }
+  input::placeholder, textarea::placeholder { color: var(--text-weak); }
+  textarea { min-height: 7rem; resize: vertical; }
+  .form-error {
+    color: #ff8a80;
+    font-size: 0.9rem;
+    min-height: 1.4em;
+    margin: 0.5rem 0 0.75rem;
+  }
+  .form-ok { color: var(--accent); font-size: 0.95rem; margin-top: 0.75rem; }
+
+  /* Footer */
+  footer {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--glass-border);
+    padding: 1.5rem 0;
+    color: var(--text-weak);
+  }
+  .footer-inner {
+    display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem;
+    justify-content: space-between; align-items: center;
+  }
+
+  /* WhatsApp flutuante */
+  .wa-float {
+    position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 20;
+    width: 3.4rem; height: 3.4rem;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(245, 196, 0, 0.75);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .wa-float svg { width: 1.7rem; height: 1.7rem; fill: var(--accent-text); }
+
+  @media (max-width: 480px) {
+    .hero { padding: 3rem 0 2.5rem; }
+    .hero-actions .btn { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-glow" aria-hidden="true"></div>
+
+<header>
+  <div class="wrap header-inner">
+    <a class="logo" href="#" aria-label="Mdeploy — início">
+      <!-- Logo Mdeploy: salve a imagem como logo.png na mesma pasta do index.html -->
+      <img class="logo-mark" src="logo.png" alt="Mdeploy" width="64" height="64">
+    </a>
+    <a class="btn btn-outline" href="#contato">Contato</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1 class="fade">Sites e sistemas sob medida para o seu negócio</h1>
+      <p class="hero-sub fade">Crio sites rápidos, landing pages que convertem e sistemas web que resolvem de verdade o problema da sua empresa — do briefing à publicação.</p>
+      <div class="hero-actions fade">
+        <a class="btn" href="#contato">Pedir orçamento</a>
+        <a class="btn btn-outline" href="https://wa.me/5585987110571" target="_blank" rel="noopener" aria-label="Conversar no WhatsApp">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="services">
+    <div class="wrap">
+      <h2 class="fade">O que eu faço</h2>
+      <div class="cards">
+        <div class="card fade">
+          <h3>Sites institucionais</h3>
+          <p>Presença digital profissional para sua empresa, com páginas rápidas e que funcionam em qualquer celular.</p>
+        </div>
+        <div class="card fade">
+          <h3>Landing pages</h3>
+          <p>Páginas focadas em conversão para lançamentos, campanhas e captação de clientes.</p>
+        </div>
+        <div class="card fade">
+          <h3>Sistemas web</h3>
+          <p>Sistemas sob medida: controle de pedidos, agendamentos, painéis internos e o que o seu processo precisar.</p>
+        </div>
+        <div class="card fade">
+          <h3>Manutenção e otimização</h3>
+          <p>Correções, melhorias de velocidade e atualizações contínuas no seu site ou sistema existente.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact" id="contato">
+    <div class="wrap">
+      <h2 class="fade">Vamos conversar</h2>
+      <p class="fade">Conte o que você precisa e eu respondo com uma proposta.</p>
+
+      <!-- TODO: crie um formulário grátis em https://formspree.io e cole o endpoint no action -->
+      <form id="contact-form" class="fade" action="https://formspree.io/f/SEU_ENDPOINT" method="POST" novalidate>
+        <div class="field">
+          <label for="nome">Nome</label>
+          <input id="nome" name="nome" type="text" placeholder="Seu nome" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="contato">E-mail ou telefone</label>
+          <input id="contato" name="contato" type="text" placeholder="voce@email.com ou (11) 99999-9999" inputmode="text" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="mensagem">Mensagem</label>
+          <textarea id="mensagem" name="mensagem" placeholder="Descreva seu projeto ou ideia" required></textarea>
+        </div>
+        <p class="form-error" id="form-error" aria-live="polite"></p>
+        <button class="btn" type="submit">Enviar mensagem</button>
+        <p class="form-ok" id="form-ok" aria-live="polite" hidden>Mensagem enviada! Vou responder em breve.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <span>Mdeploy — desenvolvimento web e sistemas</span>
+    <a href="mailto:mdeploy@outlook.com.br">mdeploy@outlook.com.br</a>
+  </div>
+</footer>
+
+<a class="wa-float" href="https://wa.me/5585987110571" target="_blank" rel="noopener" aria-label="Conversar no WhatsApp">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.7.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.2-.7l.5-.6c.1-.2.1-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.9.9-1.1 2.1-.3 3.6a12 12 0 0 0 4.6 4.3c1.7.8 2.4.9 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3z"/></svg>
+</a>
+
+<script>
+  // Header escurece para o preto quando a página rola
+  const header = document.querySelector("header");
+  const aoRolar = () => header.classList.toggle("rolando", window.scrollY > 24);
+  window.addEventListener("scroll", aoRolar, { passive: true });
+  aoRolar();
+
+  // Desvanecimento ao rolar: revela cada elemento .fade quando entra na tela
+  const observador = new IntersectionObserver((entradas) => {
+    entradas.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add("visivel");
+        observador.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".fade").forEach((el) => observador.observe(el));
+
+  const form = document.getElementById("contact-form");
+  const erro = document.getElementById("form-error");
+  const ok = document.getElementById("form-ok");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    ok.hidden = true;
+
+    const nome = form.nome.value.trim();
+    const contato = form.contato.value.trim();
+    const mensagem = form.mensagem.value.trim();
+
+    if (!nome || !contato || !mensagem) {
+      erro.textContent = "Preencha nome, contato e mensagem.";
+      return;
+    }
+    erro.textContent = "";
+
+    // Envia ao Formspree. Se o endpoint ainda não foi configurado, mostra erro na tela.
+    try {
+      const resp = await fetch(form.action, {
+        method: "POST",
+        headers: { "Accept": "application/json" },
+        body: new FormData(form)
+      });
+      if (resp.ok) {
+        ok.hidden = false;
+        form.reset();
+      } else {
+        erro.textContent = "Não foi possível enviar agora. Tente pelo WhatsApp.";
+      }
+    } catch {
+      erro.textContent = "Sem conexão. Tente novamente ou fale pelo WhatsApp.";
+    }
+  });
+</script>
+
+</body>
+</html>
